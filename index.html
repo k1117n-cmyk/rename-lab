@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Rename Lab @ UNIX Cafe</title>
+
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    background: #f5f2eb;
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .subtitle {
+    color: #555;
+    margin-bottom: 20px;
+  }
+
+  .container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    max-width: 900px;
+  }
+
+  .panel {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+  }
+
+  .terminal {
+    background: #1e1e1e;
+    color: #9fef00;
+    font-family: monospace;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .terminal input {
+    width: 100%;
+    background: #000;
+    color: #9fef00;
+    border: none;
+    padding: 6px;
+    font-family: monospace;
+  }
+
+  button {
+    margin-top: 10px;
+    margin-right: 6px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+
+  ul {
+    list-style: none;
+    padding-left: 0;
+    font-family: monospace;
+  }
+</style>
+</head>
+
+<body>
+
+<h1>☕ Rename Lab @ UNIX Cafe</h1>
+<p class="subtitle">A safe place to experiment with file renaming.</p>
+
+<div class="container">
+
+  <!-- File list -->
+  <div class="panel">
+    <h2>Files</h2>
+    <ul id="fileList"></ul>
+  </div>
+
+  <!-- Terminal -->
+  <div class="panel">
+    <h2>Terminal</h2>
+    <div class="terminal">
+      $ rename
+      <input id="command" value="s/IMG_/trip_/" />
+    </div>
+
+    <button onclick="runRename()">Run</button>
+    <button onclick="resetLab()">Reset</button>
+
+    <h3>Result</h3>
+    <ul id="resultList"></ul>
+  </div>
+
+</div>
+
+<script>
+  // Original (untouched) data
+  const originalFiles = [
+    "IMG_1234.JPG",
+    "IMG_1235.JPG",
+    "DSC_0001.JPG",
+    "IMG_9999.JPG"
+  ];
+
+  // Working copy
+  let files = [...originalFiles];
+
+  function render(listId, items) {
+    const ul = document.getElementById(listId);
+    ul.innerHTML = "";
+    items.forEach(name => {
+      const li = document.createElement("li");
+      li.textContent = name;
+      ul.appendChild(li);
+    });
+  }
+
+  // Initial render
+  render("fileList", files);
+
+  function runRename() {
+    const cmd = document.getElementById("command").value.trim();
+    const match = cmd.match(/^s\/(.+)\/(.+)\/$/);
+
+    if (!match) {
+      alert("Use format: s/OLD/NEW/");
+      return;
+    }
+
+    const from = new RegExp(match[1], "g");
+    const to = match[2];
+
+    const result = files.map(f => f.replace(from, to));
+    render("resultList", result);
+  }
+
+  function resetLab() {
+    files = [...originalFiles];
+    render("fileList", files);
+    render("resultList", []);
+  }
+</script>
+
+</body>
+</html>
+
