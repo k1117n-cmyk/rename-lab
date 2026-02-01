@@ -11,8 +11,15 @@
     padding: 20px;
   }
 
-  h1 { font-size: 1.4rem; margin-bottom: 0.2rem; }
-  .subtitle { color: #555; margin-bottom: 20px; }
+  h1 {
+    font-size: 1.4rem;
+    margin-bottom: 0.2rem;
+  }
+
+  .subtitle {
+    color: #555;
+    margin-bottom: 20px;
+  }
 
   .container {
     display: grid;
@@ -21,7 +28,11 @@
     max-width: 900px;
   }
 
-  .panel { background: #fff; padding: 15px; border-radius: 8px; }
+  .panel {
+    background: #fff;
+    padding: 15px;
+    border-radius: 8px;
+  }
 
   .terminal {
     background: #1e1e1e;
@@ -38,7 +49,6 @@
     border: none;
     padding: 6px;
     font-family: monospace;
-    box-sizing: border-box;
   }
 
   button {
@@ -48,48 +58,10 @@
     cursor: pointer;
   }
 
-  /* Filesをボタン化 */
-  .file-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
-  }
-
-  .file-btn {
-    text-align: left;
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: #fafafa;
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    cursor: pointer;
-  }
-
-  .file-btn:hover { background: #f0f0f0; }
-
-  .file-btn.active {
-    border-color: #4b7bec;
-    background: #eaf1ff;
-  }
-
-  .hint {
-    margin-top: 10px;
-    color: #666;
-    font-size: 0.9rem;
-  }
-
   ul {
     list-style: none;
     padding-left: 0;
     font-family: monospace;
-  }
-
-  /* 画面が狭いときは縦並び */
-  @media (max-width: 768px) {
-    .container { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -101,11 +73,10 @@
 
 <div class="container">
 
-  <!-- File list (buttons) -->
+  <!-- File list -->
   <div class="panel">
     <h2>Files</h2>
-    <div id="fileButtons" class="file-buttons"></div>
-    <div class="hint">Tip: 左のファイルを選んでから Run を押してください。</div>
+    <ul id="fileList"></ul>
   </div>
 
   <!-- Terminal -->
@@ -116,8 +87,8 @@
       <input id="command" value="s/IMG_/trip_/" />
     </div>
 
-    <button id="runBtn">Run</button>
-    <button id="resetBtn">Reset</button>
+    <button onclick="runRename()">Run</button>
+    <button onclick="resetLab()">Reset</button>
 
     <h3>Result</h3>
     <ul id="resultList"></ul>
@@ -126,7 +97,7 @@
 </div>
 
 <script>
-  // Original data
+  // Original (untouched) data
   const originalFiles = [
     "IMG_1234.JPG",
     "IMG_1235.JPG",
@@ -134,11 +105,11 @@
     "IMG_9999.JPG"
   ];
 
+  // Working copy
   let files = [...originalFiles];
-  let selectedIndex = 0; // 最初は先頭を選択
 
-  function renderResult(items) {
-    const ul = document.getElementById("resultList");
+  function render(listId, items) {
+    const ul = document.getElementById(listId);
     ul.innerHTML = "";
     items.forEach(name => {
       const li = document.createElement("li");
@@ -147,63 +118,30 @@
     });
   }
 
-  function renderFiles() {
-    const wrap = document.getElementById("fileButtons");
-    wrap.innerHTML = "";
-
-    files.forEach((name, idx) => {
-      const btn = document.createElement("button");
-      btn.className = "file-btn" + (idx === selectedIndex ? " active" : "");
-      btn.type = "button";
-      btn.textContent = name;
-
-      btn.addEventListener("click", () => {
-        selectedIndex = idx;
-        renderFiles();
-        renderResult([]); // 選び直したら結果は一旦クリア（好みで変更OK）
-      });
-
-      wrap.appendChild(btn);
-    });
-  }
-
-  function parseSed(cmd) {
-    const match = cmd.match(/^s\/(.+)\/(.+)\/$/);
-    if (!match) return null;
-    return { pattern: match[1], replace: match[2] };
-  }
+  // Initial render
+  render("fileList", files);
 
   function runRename() {
     const cmd = document.getElementById("command").value.trim();
-    const parsed = parseSed(cmd);
+    const match = cmd.match(/^s\/(.+)\/(.+)\/$/);
 
-    if (!parsed) {
+    if (!match) {
       alert("Use format: s/OLD/NEW/");
       return;
     }
 
-    const from = new RegExp(parsed.pattern, "g");
-    const to = parsed.replace;
+    const from = new RegExp(match[1], "g");
+    const to = match[2];
 
-    const before = files[selectedIndex];
-    const after = before.replace(from, to);
-
-    // ここが「体験」：選んだ1ファイルだけを変換して表示
-    renderResult([after]);
+    const result = files.map(f => f.replace(from, to));
+    render("resultList", result);
   }
 
   function resetLab() {
     files = [...originalFiles];
-    selectedIndex = 0;
-    renderFiles();
-    renderResult([]);
+    render("fileList", files);
+    render("resultList", []);
   }
-
-  document.getElementById("runBtn").addEventListener("click", runRename);
-  document.getElementById("resetBtn").addEventListener("click", resetLab);
-
-  // 初期表示
-  renderFiles();
 </script>
 
 <footer>
@@ -217,3 +155,4 @@
 
 </body>
 </html>
+
