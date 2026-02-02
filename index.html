@@ -34,6 +34,23 @@
     border-radius: 8px;
   }
 
+  .file-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    margin-bottom: 6px;
+    padding: 6px 10px;
+    background: #eef5ff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: monospace;
+  }
+
+  .file-btn.active {
+    background: #cfe3ff;
+  }
+
   .terminal {
     background: #1e1e1e;
     color: #9fef00;
@@ -73,10 +90,10 @@
 
 <div class="container">
 
-  <!-- File list -->
+  <!-- Files -->
   <div class="panel">
     <h2>Files</h2>
-    <ul id="fileList"></ul>
+    <div id="fileArea"></div>
   </div>
 
   <!-- Terminal -->
@@ -96,54 +113,6 @@
 
 </div>
 
-<script>
-  // Original (untouched) data
-  const originalFiles = [
-    "IMG_1234.JPG",
-    "IMG_1235.JPG",
-    "DSC_0001.JPG",
-    "IMG_9999.JPG"
-  ];
-
-  // Working copy
-  let files = [...originalFiles];
-
-  function render(listId, items) {
-    const ul = document.getElementById(listId);
-    ul.innerHTML = "";
-    items.forEach(name => {
-      const li = document.createElement("li");
-      li.textContent = name;
-      ul.appendChild(li);
-    });
-  }
-
-  // Initial render
-  render("fileList", files);
-
-  function runRename() {
-    const cmd = document.getElementById("command").value.trim();
-    const match = cmd.match(/^s\/(.+)\/(.+)\/$/);
-
-    if (!match) {
-      alert("Use format: s/OLD/NEW/");
-      return;
-    }
-
-    const from = new RegExp(match[1], "g");
-    const to = match[2];
-
-    const result = files.map(f => f.replace(from, to));
-    render("resultList", result);
-  }
-
-  function resetLab() {
-    files = [...originalFiles];
-    render("fileList", files);
-    render("resultList", []);
-  }
-</script>
-
 <footer>
   <p>
     ☕ Learn more at
@@ -153,6 +122,6 @@
   </p>
 </footer>
 
+<script src="script.js"></script>
 </body>
 </html>
-
